@@ -10,7 +10,7 @@ authRouter.post("/v1/signup",async(req,res)=>{
         const hashedPassword= await bcrypt.hash(password,saltRound);
         let savedUser
         if(isSeller) {
-            console.log("inside if")
+           
             savedUser=await Seller({
                 name,
                 uid,
@@ -18,6 +18,8 @@ authRouter.post("/v1/signup",async(req,res)=>{
                 phoneNumber,
                 email
             }).save();
+           
+
 
         }
         else    {
@@ -30,6 +32,8 @@ authRouter.post("/v1/signup",async(req,res)=>{
                 email
                 }).save();
             }
+             const token=await savedUser.getJWT();
+            res.cookie("token",token);
     
         res.json(
             {
@@ -43,6 +47,52 @@ authRouter.post("/v1/signup",async(req,res)=>{
 
     }catch(err){
         res.status(400).send("Error :"+err.message);
+    }
+})
+authRouter.post('/v1/login',async(req,res)=>{
+    try{
+        let {isSeller,email,password}=req.body;
+        let user;
+        if(isSeller){
+            user=await Seller.findOne({email:email});
+            if(!user){
+                throw new Error("User not Found");
+            }
+            const isPasswordCorrect=await user.validatePassword(password)
+            if(isPasswordCorrect){
+                const token=await user.getJWT();
+                res.cookie("token",token);
+                res.json({
+                    message:"Login Successfull",
+                    data:user
+                })
+            }
+            else{
+                throw new Error("Invalid Creds");
+            }
+             
+        }
+        else {
+            user=await User.findOne({email:email});
+            if(!user){
+                throw new Error("User not Found");
+            }
+            const isPasswordCorrect=await user.validatePassword(password);
+            if(isPasswordCorrect){
+                const token = await user.getJWT();
+                res.cookie("token",token);
+                res.json({
+                    message:"Login Successfull",
+                    data:user
+                });
+            }
+            else{
+                throw new Error("Invalid Creds");
+            }
+        }
+    }catch(err){
+        res.status(400).send("Error :"+err.message);
+
     }
 })
 
