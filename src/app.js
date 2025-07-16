@@ -2,6 +2,7 @@ const express = require('express');
 const connectdb=require("./Database/database")
 const app=express();
 const {authRouter}= require("./routes/authRoute");
+const cors = require('cors');
 require('dotenv').config()
 const PORT=3000
 connectdb().then(()=>{
