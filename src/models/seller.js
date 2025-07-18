@@ -15,12 +15,12 @@ const sellerSchema = new mongoose.Schema({
     },
     phoneNumber:{
         
-        type:Number,
-        unique:true,
-        required:true,
+        type:String,
         minlength:10,
         maxlength:10,
-        required:true
+        required:true,
+        unique:true,
+        match: [/^\d{10}$/, "Phone number must be exactly 10 digits"],
     },
     email:{
         unique:true,
